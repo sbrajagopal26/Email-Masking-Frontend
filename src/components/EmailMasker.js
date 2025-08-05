@@ -13,9 +13,10 @@ const EmailMasker = () => {
     setLoading(true);
     setMaskedEmail("");
     try {
-      const response = await axios.post(
-        "https://email-masking-backend.onrender.com/api/generate",
-        { realEmail, plan }
+      const response = await axios.post("https://email-masking-backend.onrender.com/api/generate",{ 
+        realEmail, 
+        plan 
+      }
       );
       setMaskedEmail(response.data.maskedEmail);
     } catch {
