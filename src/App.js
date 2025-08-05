@@ -6,6 +6,7 @@ function App() {
     <div className="App">
       <h1>Email Privacy Masker</h1>
       <EmailMasker />
+      <LandingPage />
     </div>
   );
 }
