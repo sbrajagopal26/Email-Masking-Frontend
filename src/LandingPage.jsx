@@ -1,6 +1,17 @@
 import { useState } from "react";
 import axios from "axios";
 
+import EmailMasker from "./components/EmailMasker";
+function LandingPage() {
+  return (
+    <div>
+      {/* Your landing page content */}
+      <EmailMasker />
+    </div>
+  );
+}
+
+export default LandingPage;
 export default function LandingPage() {
   const [realEmail, setRealEmail] = useState("");
   const [plan, setPlan] = useState("free");
