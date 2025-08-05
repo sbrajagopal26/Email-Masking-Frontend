@@ -1,5 +1,6 @@
 import React from 'react';
 import EmailMasker from './components/EmailMasker';
+import LandingPage from "./LandingPage";
 
 function App() {
   return (
