@@ -8,7 +8,7 @@ const EmailMasker = () => {
 
   const handleGenerate = async () => {
     try {
-      const response = await axios.post('https://YOUR-BACKEND-URL.onrender.com/api/generate', {
+      const response = await axios.post('https://email-masking-backend.onrender.com', {
         realEmail,
         plan
       });
