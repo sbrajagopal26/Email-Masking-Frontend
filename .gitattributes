@@ -1,0 +1,2 @@
+# Ensure text files use LF in repo and proper endings on checkout
+* text=auto
