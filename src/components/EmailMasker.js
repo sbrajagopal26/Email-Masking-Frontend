@@ -7,16 +7,16 @@ const EmailMasker = () => {
   const [maskedEmail, setMaskedEmail] = useState('');
 
   const handleGenerate = async () => {
-    try {
-      const response = await axios.post('https://email-masking-backend.onrender.com', {
-        realEmail,
-        plan
-      });
-      setMaskedEmail(response.data.maskedEmail);
-    } catch (error) {
-      alert('Error generating masked email');
-    }
-  };
+  try {
+    const response = await axios.post('https://email-masking-backend.onrender.com/generate-masked-email', {
+      realEmail,
+      plan
+    });
+    setMaskedEmail(response.data.maskedEmail);
+  } catch (error) {
+    alert('Error generating masked email');
+  }
+};
 
   return (
     <div>
