@@ -1,6 +1,6 @@
 // App.js
 import React from 'react';
-import LandingPage from "./LandingPage";
+import LandingPage from "./components/LandingPage";
 
 function App() {
   return (
