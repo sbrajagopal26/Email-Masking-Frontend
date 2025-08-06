@@ -62,105 +62,36 @@ export default function LandingPage() {
   const [maskedEmail, setMaskedEmail] = useState(null);
   const [error, setError] = useState(null);
 
-// Replace your handleSubmit function in LandingPage.js with this:
-
-async function handleSubmit(e) {
-  e.preventDefault();
-  setLoading(true);
-  setMaskedEmail(null);
-  setError(null);
-
-  try {
-    // Step 1: Wake up the backend (if it's sleeping)
-    console.log("🔄 Waking up backend...");
-    setError("Waking up server, please wait...");
-    
-    await fetch("https://email-masking-backend.onrender.com", { 
-      method: "GET",
-      timeout: 10000 
-    });
-    
-    // Wait for backend to fully wake up
-    await new Promise(resolve => setTimeout(resolve, 3000));
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setLoading(true);
+    setMaskedEmail(null);
     setError(null);
-    
-    // Step 2: Make the actual API call
-    console.log("📡 Making API request...");
-    
-    const res = await fetch("https://email-masking-backend.onrender.com/api/generate", {
-      method: "POST",
-      headers: { 
-        "Content-Type": "application/json",
-        "Accept": "application/json"
-      },
-      body: JSON.stringify({ realEmail, plan })
-    });
 
-    console.log("Response status:", res.status);
-    
-    // Get response text first
-    const responseText = await res.text();
-    console.log("Response preview:", responseText.substring(0, 100));
-
-    // Check if we got HTML instead of JSON (server error)
-    if (responseText.trim().startsWith('<!DOCTYPE') || responseText.includes('<html')) {
-      // Try one more time after another short wait
-      console.log("🔄 Got HTML, trying once more...");
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      const retryRes = await fetch("https://email-masking-backend.onrender.com/api/generate", {
+    try {
+      const res = await fetch("https://email-masking-backend.onrender.com/api/generate", {
         method: "POST",
         headers: { 
-          "Content-Type": "application/json",
-          "Accept": "application/json"
+          "Content-Type": "application/json"
         },
         body: JSON.stringify({ realEmail, plan })
       });
-      
-      const retryText = await retryRes.text();
-      
-      if (retryText.trim().startsWith('<!DOCTYPE') || retryText.includes('<html')) {
-        throw new Error("Backend is returning error pages. Please check the server logs or try again in a few minutes.");
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to generate masked email");
       }
-      
-      const retryData = JSON.parse(retryText);
-      if (!retryRes.ok) throw new Error(retryData.error || "Server error");
-      
-      setMaskedEmail(retryData.maskedEmail);
-      return;
-    }
 
-    // Parse JSON response
-    const data = JSON.parse(responseText);
-    
-    if (!res.ok) {
-      throw new Error(data.error || data.message || `HTTP ${res.status}`);
-    }
+      setMaskedEmail(data.maskedEmail);
 
-    if (!data.maskedEmail) {
-      throw new Error("Server response missing masked email");
+    } catch (err) {
+      console.error("Error:", err);
+      setError(err.message || "Failed to generate masked email. Please try again.");
+    } finally {
+      setLoading(false);
     }
-
-    setMaskedEmail(data.maskedEmail);
-    console.log("✅ Success:", data.maskedEmail);
-
-  } catch (err) {
-    console.error("❌ Full error:", err);
-    
-    // Provide user-friendly error messages
-    let errorMessage = err.message;
-    
-    if (err.message.includes('fetch')) {
-      errorMessage = "Network error: Could not connect to server. Please check your internet connection and try again.";
-    } else if (err.message.includes('JSON')) {
-      errorMessage = "Server error: The server is not responding correctly. Please try again in a few minutes.";
-    }
-    
-    setError(errorMessage);
-  } finally {
-    setLoading(false);
   }
-}
 
   return (
     <div className="bg-gradient-to-br from-indigo-50 to-white min-h-screen flex flex-col">
@@ -223,14 +154,6 @@ async function handleSubmit(e) {
             <p className="mt-6 p-4 bg-red-100 text-red-700 rounded-lg">{error}</p>
           )}
         </form>
-
-        {/* Main CTA button (optional, can be removed if form is primary CTA) */}
-        {/* <a
-          href="#generate"
-          className="inline-block mt-12 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-4 px-10 rounded-lg shadow-lg transition"
-        >
-          Generate Masked Email
-        </a> */}
       </header>
 
       {/* Features */}
