@@ -62,29 +62,47 @@ export default function LandingPage() {
   const [maskedEmail, setMaskedEmail] = useState(null);
   const [error, setError] = useState(null);
 
-  async function handleSubmit(e) {
-    e.preventDefault();
-    setLoading(true);
-    setMaskedEmail(null);
-    setError(null);
+ async function handleSubmit(e) {
+  e.preventDefault();
+  setLoading(true);
+  setMaskedEmail(null);
+  setError(null);
 
+  try {
+    console.log("Sending request to:", "https://email-masking-backend.onrender.com/api/generate");
+    console.log("With data:", { realEmail, plan });
+    
+    const res = await fetch("https://email-masking-backend.onrender.com/api/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ realEmail, plan })
+    });
+
+    console.log("Response status:", res.status);
+    console.log("Response headers:", res.headers);
+    
+    // Get the raw response text first
+    const responseText = await res.text();
+    console.log("Raw response:", responseText);
+
+    // Try to parse as JSON
+    let data;
     try {
-      const res = await fetch("https://email-masking-backend.onrender.com/api/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ realEmail, plan })
-      });
-      const data = await res.json();
-
-      if (!res.ok) throw new Error(data.error || "Failed to generate masked email");
-
-      setMaskedEmail(data.maskedEmail);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+      data = JSON.parse(responseText);
+    } catch (parseError) {
+      throw new Error(`Server returned invalid JSON: ${responseText.substring(0, 100)}...`);
     }
+
+    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}: ${data.message || 'Unknown error'}`);
+
+    setMaskedEmail(data.maskedEmail);
+  } catch (err) {
+    console.error("Full error:", err);
+    setError(err.message);
+  } finally {
+    setLoading(false);
   }
+}
 
   return (
     <div className="bg-gradient-to-br from-indigo-50 to-white min-h-screen flex flex-col">
